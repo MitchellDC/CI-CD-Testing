@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Docker + Postgres Demo</title>
+</head>
+<body>
+  <h1>Users</h1>
+
+  <form id="form">
+    <input id="name" placeholder="Enter name" required />
+    <button>Add</button>
+  </form>
+
+  <ul id="list"></ul>
+
+  <script>
+    const form = document.getElementById("form");
+    const list = document.getElementById("list");
+    const nameInput = document.getElementById("name");
+
+    async function loadUsers() {
+      const res = await fetch("/api/users");
+      const users = await res.json();
+      list.innerHTML = users.map(u => `<li>${u.name}</li>`).join("");
+    }
+
+    form.onsubmit = async e => {
+      e.preventDefault();
+      const res = await fetch("/api/users", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: nameInput.value })
+      });
+
+      if (res.ok) {
+        const updatedUsers = await res.json();
+        list.innerHTML = updatedUsers.map(u => `<li>${u.name}</li>`).join("");
+        nameInput.value = "";
+      } else {
+        alert("Error adding user");
+      }
+    };
+
+    // Load existing users on page load
+    loadUsers();
+  </script>
+</body>
+</html>
